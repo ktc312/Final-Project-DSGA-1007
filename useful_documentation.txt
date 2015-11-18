@@ -1,0 +1,18 @@
+useful documentation related to project
+
+1. A paper gives a general picture about how to do time series analysis in python with statsmodels
+http://conference.scipy.org/proceedings/scipy2011/pdfs/statsmodels.pdf
+
+2. Slides related to the above paper 
+http://www.slideshare.net/wesm/scipy-2011-time-series-analysis-in-python
+
+3. example codes in github
+http://github.com/statsmodels/statsmodels
+
+4. statmodels.tas.arima function details
+ARMA:
+http://statsmodels.sourceforge.net/devel/generated/statsmodels.tsa.arima_model.ARMA.html
+
+ARIMA:
+http://statsmodels.sourceforge.net/0.6.0/generated/statsmodels.tsa.arima_model.ARIMA.html
+
