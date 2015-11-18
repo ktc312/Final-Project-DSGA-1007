@@ -1,0 +1,7 @@
+Put all resources here
+
+GUI with TKinter http://www.lynda.com/Tkinter-training-tutorials/
+
+爬蟲工具 http://www.36dsj.com/archives/36417
+
+
