@@ -28,15 +28,15 @@ class Master():
         self.frame_header.pack()
 
         # two label in the first frame
-        ttk.Label(self.frame_header,wraplength = 500, text ='Forecasting Stock Price Using ARIMA Model',
+        ttk.Label(self.frame_header,wraplength = 440, text ='Forecasting Stock Price Using ARIMA Model',
                   background = 'Gray', font = ('Arial', 21, 'bold')
-                  ).grid(row = 0, column = 0, padx =10, pady =20)
-        ttk.Label(self.frame_header,wraplength = 400, background = 'Gray',
+                  ).grid(row = 0, column = 0, padx =10, pady =15)
+        ttk.Label(self.frame_header,wraplength = 440, background = 'Gray',
                   text = ("Please input the ticker of the stock you are interested in, then input the start date and "
                           "end date (for example: 2010-10-30). The end date can be TODAY since we will import the most"
                           " updated data from Yahoo Finance website. (Please enter the start date first, then enter "
                           "the end date)")
-                  ).grid(row = 1, column = 0, padx =10, pady=10)
+                  ).grid(row = 1, column = 0, padx =10, pady=15)
 
         # the second frame, content three input ask user for ticker name, start date ,and end date
         self.frame_content = ttk.Frame(master)
@@ -232,10 +232,10 @@ class ResultWindow:
         global Start_date
         global End_date
 
-        # thees assignment is just for testing
-        # Entry_name = 'goog'
-        # Start_date = '2014-12-01'
-        # End_date = '2015-12-10'
+        #thees assignment is just for testing
+        Entry_name = 'goog'
+        Start_date = '2014-12-01'
+        End_date = '2015-12-10'
 
         if not test_ticker(Entry_name):
             print "can't get the data"
@@ -251,7 +251,8 @@ class ResultWindow:
 
 
         # set all the variables to have correct values
-        company_name = get_company_name(Entry_name)
+        self.stock = Share(Entry_name)
+        self.company_name = get_company_name(Entry_name)
         self.predict_values = self.analysis.predict_val().values
         self.descriptive_stat = self.analysis.descriptive_stat()
 
@@ -260,7 +261,7 @@ class ResultWindow:
         self.start_date = StringVar()
         self.end_date = StringVar()
 
-        self.company.set(company_name)
+        self.company.set(self.company_name)
         self.symbol.set(Entry_name.upper())
         self.start_date.set(Start_date)
         self.end_date.set(End_date)
@@ -271,7 +272,8 @@ class ResultWindow:
         self.ave_price = StringVar()
         self.trade_days = StringVar()
 
-        self.prev_close.set('temp')
+        # Todo: put prev_price here
+        self.prev_close.set(str(self.stock.get_price()))
         self.highest_price.set(str(self.descriptive_stat[7]).replace('[','').replace(']',''))
         self.lowest_price.set(str(self.descriptive_stat[3]).replace('[','').replace(']',''))
         self.ave_price.set(str(self.descriptive_stat[1]).replace('[','').replace(']',''))
@@ -298,13 +300,15 @@ class ResultWindow:
         self.frame_info = ttk.Frame(self.master,width=200, height=500)#,  relief = RIDGE)
         self.frame_plot = ttk.Frame(self.master,width=400, height=400)#, relief = RIDGE)
         self.frame_other = ttk.Frame(self.master,width=400, height=100)#,  relief = RIDGE)
+        self.frame_button = ttk.Frame(self.master,width=600, height=100)#,  relief = RIDGE)
         self.frame_header.grid(row = 0, column = 0, columnspan = 2)
         self.frame_info.grid(row = 1, column = 0, rowspan = 2, sticky= "nsew")
         self.frame_plot.grid(row = 1, column = 1, sticky= "nsew")
         self.frame_other.grid(row = 2, column = 1, sticky= "nsew")
+        self.frame_button.grid(row = 3, column =0, columnspan = 2)
 
         # create all the label needed in the results window
-        ttk.Label(self.frame_header,wraplength = 600, text ='Results Window Header \n '
+        ttk.Label(self.frame_header,wraplength = 800, text ='Results Window Header \n '
                   'this is the predicted price and historical price, and write more and '
                                                             'more message here.'
                   ,background = 'Gray',font = ('Arial', 21, 'bold')
@@ -425,10 +429,12 @@ class ResultWindow:
 
         # Todo: add one more window when click 'more' button
         # create quit button, will close the second window
-        self.quitButton = ttk.Button(self.frame_other, text = 'Quit', width = 25, command = self.close_windows)
-        self.moreButton = ttk.Button(self.frame_other, text = 'More', width = 25, command = self.close_windows)
-        self.quitButton.grid(row = 5, column = 0,  padx = 20, pady =10, sticky= S)
-        self.moreButton.grid(row = 5, column = 1,  padx = 20, pady =10, sticky= S)
+        self.quitButton = ttk.Button(self.frame_button, text = 'Quit', width = 25, command = self.close_windows)
+        self.moreButton = ttk.Button(self.frame_button, text = 'More', width = 25, command = self.close_windows)
+        ttk.Label(self.frame_button, text = '   ', width = 11).grid(row = 0, column =0, padx = 5)
+        ttk.Label(self.frame_button, text = '   ', width = 11).grid(row = 0, column =3, padx = 5)
+        self.quitButton.grid(row = 0, column = 1,  padx = 5, pady =5, sticky= S)
+        self.moreButton.grid(row = 0, column = 2,  padx = 5, pady =5, sticky= S)
 
     def close_windows(self):
         # the function to close the second window
