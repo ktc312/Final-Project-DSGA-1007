@@ -22,7 +22,7 @@ class Analysis:
         df = pd.DataFrame(stock.get_historical(start_date,end_date))[['Date','Adj_Close']]
         df['Adj_Close'] = df['Adj_Close'].astype(float)
         df['Date'] = pd.to_datetime(df['Date'])
-        df = df.sort_values(by = 'Date', ascending = True)
+        df = df.sort_index(by = 'Date', ascending = True)
         df.index = range(len(df))
         df.columns = ['Date', 'Price']
         self.df = df
