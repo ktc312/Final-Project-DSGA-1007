@@ -12,9 +12,6 @@ import scikits.statsmodels.tsa.stattools as tss
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
 from statsmodels.tsa.arima_model import ARIMA
-tsa = sm.tsa
-
-plt.close('all')
 
 class Analysis:
     '''class which deals with all the analytical procedures'''
@@ -32,8 +29,8 @@ class Analysis:
         self.ts = df.set_index('Date')
         self.date = df['Date']
         self.val = df['Price']
-        self.start = str(df['Date'][0])
-        self.end = str(df['Date'][len(df)-1])
+        self.start = self.ts.index[0]
+        self.end = self.ts.index[-1]
         self.diff1_val = pd.Series(np.diff(self.val))
         self.diff1_val_na = pd.Series(np.concatenate(([np.nan], self.diff1_val.values)))
         self.diff2_val = pd.Series(np.diff(self.diff1_val_na))
@@ -133,7 +130,7 @@ class Analysis:
                 try:
                     order = (p, 0, q)
                     params = (p, d, q)
-                    arima_mod = ARIMA(ts.dropna(), order).fit(method = 'css-mle')
+                    arima_mod = ARIMA(ts.dropna(), order).fit(method = 'css-mle', disp = 0)
                     arima_mod_aics[params] = arima_mod.aic
                 except:
                     pass
@@ -155,28 +152,58 @@ class Analysis:
     def arima_model(self):
         ''' uses parameter order determined in param_determination() to fit an ARIMA model, returns model results'''
         order = self.param_determination()
-        self.results = ARIMA(self.ts, order).fit(method = 'css-mle')
+        self.results = ARIMA(self.ts, order).fit(method = 'css-mle', disp = 0 )
         return self.results
 
     def predict_val(self):
         '''using arima model to forecast the stock values in the next 7 days'''
-        return self.arima_model().forecast(7)[0]
+        self.pred_val = self.arima_model().forecast(7)[0]
+        base = self.end
+        self.time_period = [base + timedelta(days = x) for x in range(1,8)]
+        pred_df =  pd.DataFrame(self.pred_val, index = self.time_period)
+        pred_df.columns = ['Price']
+        return pred_df
 
     def compare_plot(self):
         '''generate comparison plot'''
-        result = self.ariam_model()
+        result = self.arima_model()
         fig = result.plot_predict()
         plt.savefig('Predicted_vs_historical_data.jpg')
 
     def predict_plot(self):
         '''generate prediction plot'''
-        pass
+        # frames = [self.ts, self.predict_val]
+        # result = pd.concate(frames)
+        pred_df =  self.predict_val()
+        pred_df.ix[self.end] = self.val[len(self.df)-1]
+        pred_df = pred_df.sort_index(ascending = True)
+        pred_time = pred_df.index
+        pred_vals = pred_df['Price']
+        fig = plt.figure()
+        ax1 = fig.add_subplot(211)
+        ax1.plot(self.date, self.val, '-b', label = 'original data')
+        ax1.plot(pred_time, pred_vals, '-r', label = 'predicted values')
+        ax1.set_title('Full plot')
 
-# start_date = '2010-01-01'
-# end_date = '2015-11-24'
-# ticker = 'YHOO'
-# analysis  = Analysis(start_date, end_date, ticker)
-# print "predicted value = ", analysis.predict_val()
+        base = self.ts.index[-60]
+        ax2 = fig.add_subplot(212)
+        ax2.plot(self.ts.index[-60:], self.ts.Price[-60:], '-b', label = 'original data')
+        # ax2.plot(self.date, self.val, '-b', label = 'original data')
+        ax2.plot(pred_time, pred_vals,'+r',label = 'predicted values' )
+        # ax2.xticks([base + timedelta(days = x) for x in range(0, 90, 10)], rotation = 90)
+        ax2.set_title('Close-up plot')
+        plt.savefig('Predicted_plots.jpg')
+
+
+
+
+
+
+
+
+
+
+
 
 
 

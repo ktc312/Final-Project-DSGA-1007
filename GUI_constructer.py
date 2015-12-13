@@ -28,11 +28,14 @@ class Master():
         self.frame_header.pack()
 
         # two label in the first frame
-        ttk.Label(self.frame_header,wraplength = 600, text ='Test Header',background = 'Gray',
-                  font = ('Arial', 21, 'bold')
+        ttk.Label(self.frame_header,wraplength = 500, text ='Forecasting Stock Price Using ARIMA Model',
+                  background = 'Gray', font = ('Arial', 21, 'bold')
                   ).grid(row = 0, column = 0, padx =10, pady =20)
-        ttk.Label(self.frame_header,wraplength = 600, background = 'Gray',
-                  text = ("Please enter the start date first, then enter the end date")
+        ttk.Label(self.frame_header,wraplength = 400, background = 'Gray',
+                  text = ("Please input the ticker of the stock you are interested in, then input the start date and "
+                          "end date (for example: 2010-10-30). The end date can be TODAY since we will import the most"
+                          " updated data from Yahoo Finance website. (Please enter the start date first, then enter "
+                          "the end date)")
                   ).grid(row = 1, column = 0, padx =10, pady=10)
 
         # the second frame, content three input ask user for ticker name, start date ,and end date
@@ -100,7 +103,7 @@ class Master():
 
 
 
-
+    # Todo: add a loading window after click before result window is done
     def submit(self):
         # function of submit button, open new window when click
         global Entry_name
@@ -217,9 +220,6 @@ class Master():
 # the second window, shows results
 class ResultWindow:
 
-    # ToDo: link the input to the main function, and print the output in the frame
-
-
     def __init__(self, master):
 
         # configures of second window
@@ -233,9 +233,9 @@ class ResultWindow:
         global End_date
 
         # thees assignment is just for testing
-        Entry_name = 'goog'
-        Start_date = '2015-12-01'
-        End_date = '2015-12-10'
+        # Entry_name = 'goog'
+        # Start_date = '2014-12-01'
+        # End_date = '2015-12-10'
 
         if not test_ticker(Entry_name):
             print "can't get the data"
@@ -246,53 +246,87 @@ class ResultWindow:
             except TclError:
                 print 'TclError'
         else:
-            analysis  = Analysis(Start_date, End_date, Entry_name)
+            self.analysis = Analysis(Start_date, End_date, Entry_name)
 
 
 
         # set all the variables to have correct values
         company_name = get_company_name(Entry_name)
+        self.predict_values = self.analysis.predict_val().values
+        self.descriptive_stat = self.analysis.descriptive_stat()
 
         self.company = StringVar()
         self.symbol = StringVar()
         self.start_date = StringVar()
         self.end_date = StringVar()
+
         self.company.set(company_name)
         self.symbol.set(Entry_name.upper())
         self.start_date.set(Start_date)
         self.end_date.set(End_date)
 
-        #
-        #
-        # descriptive_stats = self.analyzed_data.descriptive_stat()
-        # predicted_value = 'predicted value'
-        # #self.analyzed_data.arima_model()
+        self.prev_close = StringVar()
+        self.highest_price = StringVar()
+        self.lowest_price = StringVar()
+        self.ave_price = StringVar()
+        self.trade_days = StringVar()
 
-        self.frame_header = ttk.Frame(self.master,width=600, height=100,relief = RIDGE)
-        self.frame_info = ttk.Frame(self.master,width=200, height=500,  relief = RIDGE)
-        self.frame_plot = ttk.Frame(self.master,width=400, height=400, relief = RIDGE)
-        self.frame_other = ttk.Frame(self.master,width=400, height=100,  relief = RIDGE)
+        self.prev_close.set('temp')
+        self.highest_price.set(str(self.descriptive_stat[7]).replace('[','').replace(']',''))
+        self.lowest_price.set(str(self.descriptive_stat[3]).replace('[','').replace(']',''))
+        self.ave_price.set(str(self.descriptive_stat[1]).replace('[','').replace(']',''))
+        self.trade_days.set(str(self.descriptive_stat[0]).replace('[','').replace(']',''))
+
+        self.first_price = StringVar()
+        self.second_price = StringVar()
+        self.third_price = StringVar()
+        self.fourth_price = StringVar()
+        self.fifth_price = StringVar()
+        self.sixth_price = StringVar()
+        self.seventh_price = StringVar()
+
+        self.first_price.set(str(self.predict_values[0]).replace('[','').replace(']',''))
+        self.second_price.set(str(self.predict_values[1]).replace('[','').replace(']',''))
+        self.third_price.set(str(self.predict_values[2]).replace('[','').replace(']',''))
+        self.fourth_price.set(str(self.predict_values[3]).replace('[','').replace(']',''))
+        self.fifth_price.set(str(self.predict_values[4]).replace('[','').replace(']',''))
+        self.sixth_price.set(str(self.predict_values[5]).replace('[','').replace(']',''))
+        self.seventh_price.set(str(self.predict_values[6]).replace('[','').replace(']',''))
+
+        # Create all the frames in this window
+        self.frame_header = ttk.Frame(self.master,width=600, height=100)#,relief = RIDGE)
+        self.frame_info = ttk.Frame(self.master,width=200, height=500)#,  relief = RIDGE)
+        self.frame_plot = ttk.Frame(self.master,width=400, height=400)#, relief = RIDGE)
+        self.frame_other = ttk.Frame(self.master,width=400, height=100)#,  relief = RIDGE)
         self.frame_header.grid(row = 0, column = 0, columnspan = 2)
         self.frame_info.grid(row = 1, column = 0, rowspan = 2, sticky= "nsew")
         self.frame_plot.grid(row = 1, column = 1, sticky= "nsew")
         self.frame_other.grid(row = 2, column = 1, sticky= "nsew")
 
         # create all the label needed in the results window
-        ttk.Label(self.frame_header,wraplength = 400, text ='Results Window Header',background = 'Gray',
-                   font = ('Arial', 21, 'bold')
+        ttk.Label(self.frame_header,wraplength = 600, text ='Results Window Header \n '
+                  'this is the predicted price and historical price, and write more and '
+                                                            'more message here.'
+                  ,background = 'Gray',font = ('Arial', 21, 'bold')
                    ).pack(pady = 15, padx = 20)
 
         self.plot_notebook = ttk.Notebook(self.master, width=400, height=400)
         self.f1 = ttk.Frame(self.plot_notebook )   # first page, which would get widgets gridded into it
         self.f2 = ttk.Frame(self.plot_notebook )   # second page
-        self.plot_notebook .add(self.f1, text='One')
-        self.plot_notebook .add(self.f2, text='Two')
+        self.plot_notebook.add(self.f1, text='Compare')
+        self.plot_notebook.add(self.f2, text='Predict')
         self.plot_notebook.grid(row = 1, column = 1, sticky= "nsew")
 
-        self.plot = ImageTk.PhotoImage(Image.open('Predicted_vs_historical_data.jpg').resize((400, 400),Image.ANTIALIAS))
-
-        plot_label = Label(self.f1,image = self.plot )
-        plot_label.pack()
+        self.analysis.compare_plot()
+        self.compare_plot = ImageTk.PhotoImage(Image.open('Predicted_vs_historical_data.jpg'
+                                                          ).resize((400, 400),Image.ANTIALIAS))
+        self.analysis.predict_plot()
+        self.predict_plot = ImageTk.PhotoImage(Image.open('Predicted_plots.jpg'
+                                                          ).resize((400, 400),Image.ANTIALIAS))
+        compare_plot_label = Label(self.f1, image = self.compare_plot)
+        predict_plot_label = Label(self.f2, image = self.predict_plot)
+        compare_plot_label.pack()
+        predict_plot_label.pack()
 
         ttk.Label(self.frame_info, text = 'Stock Information:',wraplength = 200, anchor= NW , justify= LEFT
                   ).grid(row = 0, column = 0, columnspan = 2, pady = 5, padx = 5)
@@ -314,32 +348,87 @@ class ResultWindow:
                   ).grid(row = 4, column = 1, sticky = W, padx = 5)
         ttk.Label(self.frame_info, text = ' ',wraplength = 200, justify= LEFT
                   ).grid(row = 5, column = 0, sticky = W, padx = 5)
+
         ttk.Label(self.frame_info, text = 'Descriptive Statistics:',wraplength = 200, anchor= NW , justify= LEFT
                   ).grid(row = 6, column = 0, columnspan = 2, pady = 5, padx = 5)
-        ttk.Label(self.frame_info, text = 'Highest Price:',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, text = 'Prev Close: ',wraplength = 200, justify= LEFT
                   ).grid(row = 7, column = 0, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'ABC',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, textvariable = self.prev_close,wraplength = 200, justify= LEFT
                   ).grid(row = 7, column = 1, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'Lowest Price:',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, text = 'Highest Price:',wraplength = 200, justify= LEFT
                   ).grid(row = 8, column = 0, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'ABC',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, textvariable = self.highest_price,wraplength = 200, justify= LEFT
                   ).grid(row = 8, column = 1, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'Average Price:',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, text = 'Lowest Price:',wraplength = 200, justify= LEFT
                   ).grid(row = 9, column = 0, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'ABC',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, textvariable = self.lowest_price,wraplength = 200, justify= LEFT
                   ).grid(row = 9, column = 1, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'Trade dates:',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, text = 'Average Price:',wraplength = 200, justify= LEFT
                   ).grid(row = 10, column = 0, sticky = W, padx = 5)
-        ttk.Label(self.frame_info, text = 'ABC',wraplength = 200, justify= LEFT
+        ttk.Label(self.frame_info, textvariable = self.ave_price,wraplength = 200, justify= LEFT
                   ).grid(row = 10, column = 1, sticky = W, padx = 5)
+        ttk.Label(self.frame_info, text = 'Trade days:',wraplength = 200, justify= LEFT
+                  ).grid(row = 11, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_info, textvariable = self.trade_days,wraplength = 200, justify= LEFT
+                  ).grid(row = 11, column = 1, sticky = W, padx = 5)
+        ttk.Label(self.frame_info, text = ' ',wraplength = 200, justify= LEFT
+                  ).grid(row = 12, column = 0, sticky = W, padx = 5)
 
 
-        ttk.Label(self.frame_other, text = 'Other Information:',wraplength = 200, anchor= NW , justify= LEFT
-                  ).grid(row = 0, column = 0, columnspan = 2, pady = 5, padx = 5)
+        ttk.Label(self.frame_info, text = 'Conclusion:',wraplength = 200, anchor= NW , justify= LEFT
+                  ).grid(row = 13, column = 0, columnspan = 2, pady = 5, padx = 5)
+        ttk.Label(self.frame_info, text = ' ',wraplength = 200, justify= LEFT
+                  ).grid(row = 14, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_info, text = '1. As the graph showing, the blue line is the actual prices and the green '
+                                          'line is the predicted prices using ARIMA model based on the historical '
+                                          'prices. You can see the comparison of the real prices and the predicted '
+                                          'prices. '
+                  ,wraplength = 200, justify= LEFT
+                  ).grid(row = 15, column = 0,columnspan = 2, sticky = W, padx = 5)
+        ttk.Label(self.frame_info, text = '2. The last 7 data is the prices predicted by ARIMA model which means the'
+                                          ' potential prices of the stock in the future 7 trading days.  '
+                  ,wraplength = 200, justify= LEFT
+                  ).grid(row = 16, column = 0, columnspan = 2,sticky = W, padx = 5)
 
+        ttk.Label(self.frame_other, text = 'Predict Price: Seven Days Price Forecast',
+                  wraplength = 400, anchor= NW , justify= LEFT
+                  ).grid(row = 0, column = 0, columnspan = 4, pady = 5, padx = 5)
+        ttk.Label(self.frame_other, text = '1st: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 1, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.first_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 1, column = 1, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, text = '2nd: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 2, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.second_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 2, column = 1, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, text = '3rd: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 3, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.third_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 3, column = 1, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, text = '4th: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 4, column = 0, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.fourth_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 4, column = 1, sticky = W, padx = 5)
+
+        ttk.Label(self.frame_other, text = '5th: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 1, column = 2, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.fifth_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 1, column = 3, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, text = '6th: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 2, column = 2, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.sixth_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 2, column = 3, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, text = '7th: ',wraplength = 200, justify= LEFT
+                  ).grid(row = 3, column = 2, sticky = W, padx = 5)
+        ttk.Label(self.frame_other, textvariable = self.seventh_price,wraplength = 200, justify= LEFT
+                  ).grid(row = 3, column = 3, sticky = W, padx = 5)
+
+        # Todo: add one more window when click 'more' button
         # create quit button, will close the second window
         self.quitButton = ttk.Button(self.frame_other, text = 'Quit', width = 25, command = self.close_windows)
-        self.quitButton.grid(row = 5, column = 0, columnspan = 2,  padx = 20, pady =10, sticky= S)
+        self.moreButton = ttk.Button(self.frame_other, text = 'More', width = 25, command = self.close_windows)
+        self.quitButton.grid(row = 5, column = 0,  padx = 20, pady =10, sticky= S)
+        self.moreButton.grid(row = 5, column = 1,  padx = 20, pady =10, sticky= S)
 
     def close_windows(self):
         # the function to close the second window
