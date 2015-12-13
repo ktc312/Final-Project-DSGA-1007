@@ -231,10 +231,10 @@ class ResultWindow:
         global Start_date
         global End_date
 
-        #thees assignment is just for testing
-        Entry_name = 'goog'
-        Start_date = '2014-12-01'
-        End_date = '2015-12-10'
+        # #thees assignment is just for testing
+        # Entry_name = 'goog'
+        # Start_date = '2014-12-01'
+        # End_date = '2015-12-10'
 
         if not test_ticker(Entry_name):
             print "can't get the data"
