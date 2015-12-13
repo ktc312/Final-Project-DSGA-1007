@@ -247,7 +247,9 @@ class ResultWindow:
         else:
             self.analysis = Analysis(Start_date, End_date, Entry_name)
 
-
+        # this variable is for MoreWindow
+        global param_df
+        param_df = str(self.analysis.param_df())
 
         # set all the variables to have correct values
         self.stock = Share(Entry_name)
@@ -425,7 +427,6 @@ class ResultWindow:
         ttk.Label(self.frame_other, textvariable = self.seventh_price,wraplength = 200, justify= LEFT
                   ).grid(row = 3, column = 3, sticky = W, padx = 5)
 
-        # Todo: add one more window when click 'more' button
         # create quit button, will close the second window
         self.quitButton = ttk.Button(self.frame_button, text = 'Quit', width = 25, command = self.close_windows)
         self.moreButton = ttk.Button(self.frame_button, text = 'More', width = 25, command = self.more)
@@ -443,14 +444,57 @@ class ResultWindow:
         self.newWindow = Toplevel()
         self.app = MoreWindow(self.newWindow)
 
-# Todo: finish more window
+
 class MoreWindow:
     def __init__(self, master):
         self.master = master
         master.title('More')
         master.resizable(False, False)
 
-        self.quitButton = ttk.Button(self.master, text = 'Quit', width = 25, command = self.close_windows)
+        global param_df
+
+
+        Label(self.master, text = "By looking these plots, we can determine 'd'",wraplength = 400, justify= LEFT
+                  ).pack()
+
+        self.plot_notebook = ttk.Notebook(self.master, width=400, height=400)
+        self.f1 = ttk.Frame(self.plot_notebook )   # first page, which would get widgets gridded into it
+        self.f2 = ttk.Frame(self.plot_notebook )   # second page
+        self.f3 = ttk.Frame(self.plot_notebook)
+        self.plot_notebook.add(self.f1, text='ACF vs PACF')
+        self.plot_notebook.add(self.f2, text='diff 1')
+        self.plot_notebook.add(self.f3, text='diff 2')
+        self.plot_notebook.pack()
+
+        try:
+            self.ACF_plot = ImageTk.PhotoImage(Image.open('ACF_vs_PACF.jpg'
+                                                          ).resize((400, 400),Image.ANTIALIAS))
+            Label(self.f1, image = self.ACF_plot).pack()
+        except:
+            print 'no ACF_vs_PACF.jpg'
+            Label(self.f3, text = 'No ACF vs PACF').pack()
+        try:
+            self.diff1_plot = ImageTk.PhotoImage(Image.open('ACF_vs_PACF_diff1.jpg'
+                                                          ).resize((400, 400),Image.ANTIALIAS))
+            Label(self.f2, image = self.diff1_plot).pack()
+        except:
+            print 'no ACF_vs_PACF_diff1.jpg'
+            Label(self.f3, text = 'No ACF vs PACF diff1').pack()
+        try:
+            self.diff2_plot = ImageTk.PhotoImage(Image.open('ACF_vs_PACF_diff2.jpg'
+                                                          ).resize((400, 400),Image.ANTIALIAS))
+            Label(self.f3, image = self.diff2_plot).pack()
+        except:
+            print 'no ACF_vs_PACF_diff2.jpg'
+            Label(self.f3, text = 'No ACF vs PACF diff2').pack()
+
+        self.param_df = StringVar()
+        self.param_df.set(param_df)
+        Label(self.master, textvariable = self.param_df).pack()
+        Label(self.master, text = 'We use these parameter to fit an ARIMA model for prediction, '
+                                  'which provides the results in "result window"',wraplength = 400, justify= LEFT
+                  ).pack()
+        self.quitButton = Button(self.master, text = 'Quit', width = 25, command = self.close_windows)
         self.quitButton.pack()
 
     def close_windows(self):
