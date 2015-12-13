@@ -11,7 +11,7 @@ from analysis import *
 from PIL import Image, ImageTk
 
 # The main window
-class Master():
+class Master:
 
     def __init__(self, master):
 
@@ -130,8 +130,7 @@ class Master():
 
 
     def start_date_validate(self, input_date):
-        # Author: S.Prasanna
-        """ Method to Validate Entry text input size """
+        """ Method to Validate Entry text input size, Author: S.Prasanna """
         TEXT_MAXINPUTSIZE = 10
         if (self.entry_start_date.index(END) >= TEXT_MAXINPUTSIZE - 1):
             self.entry_start_date.delete(TEXT_MAXINPUTSIZE - 1)
@@ -272,7 +271,6 @@ class ResultWindow:
         self.ave_price = StringVar()
         self.trade_days = StringVar()
 
-        # Todo: put prev_price here
         self.prev_close.set(str(self.stock.get_price()))
         self.highest_price.set(str(self.descriptive_stat[7]).replace('[','').replace(']',''))
         self.lowest_price.set(str(self.descriptive_stat[3]).replace('[','').replace(']',''))
@@ -430,7 +428,7 @@ class ResultWindow:
         # Todo: add one more window when click 'more' button
         # create quit button, will close the second window
         self.quitButton = ttk.Button(self.frame_button, text = 'Quit', width = 25, command = self.close_windows)
-        self.moreButton = ttk.Button(self.frame_button, text = 'More', width = 25, command = self.close_windows)
+        self.moreButton = ttk.Button(self.frame_button, text = 'More', width = 25, command = self.more)
         ttk.Label(self.frame_button, text = '   ', width = 11).grid(row = 0, column =0, padx = 5)
         ttk.Label(self.frame_button, text = '   ', width = 11).grid(row = 0, column =3, padx = 5)
         self.quitButton.grid(row = 0, column = 1,  padx = 5, pady =5, sticky= S)
@@ -440,4 +438,21 @@ class ResultWindow:
         # the function to close the second window
         self.master.destroy()
 
+    def more(self):
+        # function of more button, open new window when click
+        self.newWindow = Toplevel()
+        self.app = MoreWindow(self.newWindow)
 
+# Todo: finish more window
+class MoreWindow:
+    def __init__(self, master):
+        self.master = master
+        master.title('More')
+        master.resizable(False, False)
+
+        self.quitButton = ttk.Button(self.master, text = 'Quit', width = 25, command = self.close_windows)
+        self.quitButton.pack()
+
+    def close_windows(self):
+        # the function to close the second window
+        self.master.destroy()
