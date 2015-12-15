@@ -43,6 +43,7 @@ def get_data(ticker_symbol, start_date, end_date):
 
 
 def test_ticker(ticker_symbol):
+    # test if there are data available for the user entered ticker symbol
     today = datetime.now()
     from_date = today - relativedelta(months=2)
     today = today.strftime("%Y-%m-%d")
